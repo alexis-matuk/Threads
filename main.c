@@ -84,6 +84,19 @@ void *combinatorial(void *params)
     pthread_exit(0);
 }
 
+void firstThread()
+{
+  pthread_t tid1;//Declaración del primer thread
+  pthread_create( &tid1, NULL, printer, NULL );//Iniciar primer thread
+  pthread_join( tid1, NULL );//Esperar a que acabe el prime thread
+}
+
+void secondThread(struct thread_args args)
+{
+  pthread_t tid2;//Declarar segundo thread
+  pthread_create(&tid2, NULL, combinatorial, (void*)&args);//Iniciar el segundo thread
+  pthread_join( tid2, NULL );//Esperar a que termine el segundo thread
+}
 
 int main(int argc, const char * argv[]) {
     //argc siempre va a ser 1 porque el nombre del programa se pasa como primer parámetro
@@ -100,11 +113,7 @@ int main(int argc, const char * argv[]) {
     struct thread_args args;//Declarar el struct que empaqueta los dos argumentos
     args.n =  atoi(argv[1]);
     args.k = atoi(argv[2]);
-
-    pthread_t tid1;//Declaración del primer thread
-    pthread_create( &tid1, NULL, printer, NULL );//Iniciar primer thread
-    pthread_join( tid1, NULL );//Esperar a que acabe el prime thread
-
+    firstThread();
     /*
     Después del primer thread se debe hacer un fork, ya que la función execlp que se debe ejecutar
     crea un proceso hijo que ejecuta un bash y termina al padre, por lo que si se hiciera execlp
@@ -130,9 +139,7 @@ int main(int argc, const char * argv[]) {
     {
       wait( NULL );//Esperar a que termina el fork hijo
       printf("==================\n");
-      pthread_t tid2;//Declarar segundo thread
-      pthread_create(&tid2, NULL, combinatorial, (void*)&args);//Iniciar el segundo thread
-      pthread_join( tid2, NULL );//Esperar a que termine el segundo thread
+      secondThread(args);
       printf("La combinatoria de %d en %d es %d\n", args.n, args.k, combRes);//Imprimir el resultado obtenido por el segundo thread
       exit(0);
     }
