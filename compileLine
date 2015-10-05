@@ -1,0 +1,2 @@
+gcc main.c -o threads -std=c11 -lpthread
+./threads 6 2
